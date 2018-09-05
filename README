@@ -1,0 +1,189 @@
+ronenmor
+
+yoavhalevi noamkap or.costa
+
+=====================================================
+===================Description=======================
+=====================================================
+
+this program creates 2 different types of hash sets, one based on open-hashing, and the other on closed
+hashing, and testing their efficiency compared to 3 java's collections: treeSet, linkedList, hashSet.
+
+it contains the following files:
+#SimpleSet- an interface of a set with add, contains, delete and size methods.
+
+#SimpleHashSet - an abstract class which implements SimpleSet, and setting the base for ClosedHashSet and
+OpenHashSet with several necessary variables and methods:
+'rehashDelete'- checks whether a rehash is needed after a string removal
+'rehashAdd'- checks whether a rehash is needed after a string addition
+'copyToNewTable'- an abstract method which is in charge of increase/decrease the capacity of the table.
+
+#ClosedHashSet- a closed-hashing set which extends SimpleSet- has set's basic methods: add, contains,
+delete, size, copyToNewTable and several more:
+'getHashIndex'- calculates an index in the set for a given string by a formula given in ex3.pdf.
+'findIndex'- returns the index in the set of a given string, and -1 if the string doesn't exist.
+
+#OpenHashSet- an open-hashing set which extends SimpleSet- has set's basic methods: add, contains,
+delete, size, copyToNewTable and several more:
+'getHashIndex'- calculates an index in the set for a given string by a formula given in ex3.pdf.
+
+for further information about closed/open-hashing, visit: https://en.wikipedia.org/wiki/Hash_table
+
+#CollectionFacadeSet- a class which implements 'SimpleSet', and simplifies the work with a given set with
+it's methods. This class allows us to create an array of sets, and use them all with the same methods.
+
+#LinkedListWrapper- a wrapper class which holds a LinkedList and delegates some of it's methods
+
+
+
+=====================================================
+======================Design=========================
+=====================================================
+
+
+
+=====================================================
+==============Implementation Issues==================
+=====================================================
+
+Implementation of OpenHashSet table:
+I created a wrapper class in order to instantiate an array of linked lists with only
+several methods and not the entire linked list API, because some of it's method are irrelevant in our case.
+When delegating methods to a wrapper class I simplified the API of LinkedList<String> only the methods
+needed.
+this design decision complies with the Minimal API concept, encapsulation and is a known design pattern
+that I thought that fits this case the most.
+
+How you implemented the deletion mechanism in ClosedHashSet?
+In case of deletion, the relevant index is "flagged" with an empty string-"" (can easily be changed with
+another flag). When trying to add a string- a duplication check is being done while an available index is
+being searched- and a flagged index is definitely one. therefore, when reaching a flagged index, it'll be
+saved in a temporary variable, while duplicate check continue running. when reaching the end of the loop,
+which means the string should be added, the final index is being exchanged with the flagged index iff the
+temporary variable was changed.
+
+
+=====================================================
+================Answers to Questions=================
+=====================================================
+
+~~~~~~~~~~~RESULTS~~~~~~~~~~~~
+
+1.time measurement in milliseconds for adding all data1 words
+OpenHashSet_AddData1 = 39821
+ClosedHashSet_AddData1 = 137644
+TreeSet_AddData1 = 29
+LinkedList_AddData1 = 11 *Fastest*
+HashSet_AddData1 = 14
+
+2. time measurement in milliseconds for adding all data2 words
+OpenHashSet_AddData2 = 122
+ClosedHashSet_AddData2 = 97
+TreeSet_AddData2 = 9
+LinkedList_AddData2 = 4
+HashSet_AddData2 = 3 *Fastest*
+
+3. For each data structure: the time it took to initialize with the contents of data1.txt compared to
+the time it took to initialize with data2.txt.
+Set Type = data1 \ data2
+OpenHashSet = 39821 \ 122
+ClosedHashSet = 137644 \ 97
+TreeSet = 29 \ 9
+LinkedList = 11 \ 4
+HashSet = 14 \ 3
+
+4. Compare the different data structures for contains (”hi”) after data1.txt initialization. *Mark* the
+fastest.
+OpenHashSet_Contains_hi1 = 39 *Fastest*
+ClosedHashSet_Contains_hi1 = 44
+TreeSet_Contains_hi1 = 47
+LinkedList_Contains_hi1 = 105
+HashSet_Contains_hi1 = 53
+
+5. Compare the data structures for contains (“-13170890158”) after data1.txt initialization. *Mark*
+the fastest.
+OpenHashSet_Contains_negative = 642669
+ClosedHashSet_Contains_negative = 4279945
+TreeSet_Contains_negative = 56
+LinkedList_Contains_negative = 48 *Fastest*
+HashSet_Contains_negative = 52
+
+6. For each data structure initialized with data1.txt, compare the time it took for the query
+contains (“hi”) as opposed to “-13170890158”.
+Set Type  =  "hi" \ negative
+    OpenHashSet = 39 \ 642669
+    ClosedHashSet = 44 \ 4279945
+    TreeSet = 47 \ 56
+    LinkedList = 105 \ 48
+    HashSet = 53 \ 52
+
+7. Compare the data structures for contains (“23”) after data2.txt initialization. *Mark*
+the fastest.
+OpenHashSet_Contains_23 = 250
+ClosedHashSet_Contains_23 = 35
+TreeSet_Contains_23 = 13 *Fastest*
+LinkedList_Contains_23 = 23
+HashSet_Contains_23 = 44
+
+8. Compare the data structures for contains (“hi”) after data2.txt initialization. *Mark*
+the fastest.
+OpenHashSet_Contains_hi2 = 266
+ClosedHashSet_Contains_hi2 = 53
+TreeSet_Contains_hi2 = 13 *Fastest*
+LinkedList_Contains_hi2 = 20
+HashSet_Contains_hi2 = 26
+
+9. For each data structure initialized with data2.txt, compare the time it took for the query
+contains (“hi”) as opposed to “23”.
+    Set Type  =  "23" \ "hi"
+    OpenHashSet = 250 \ 266
+    ClosedHashSet = 35 \ 53
+    TreeSet = 13 \ 13
+    LinkedList = 23 \ 20
+    HashSet = 44 \ 26
+
+
+
+● Account, in separate, for OpenHashSet’s and ClosedHashSet’s bad results for data1.txt:
+openHashSet- since the file data1 contains 99,999 with the same hash, they are all being added to a single
+index in the table. when trying to add a new string, a duplication check is being done by calling the
+LinkedListWrapper method 'contains' which uses java's linked list 'contains'- this operation takes longer
+and longer as more and more words are added to the table. in addition, a rehash is needed to be done
+frequently- an operation which takes much time (copying thousands of strings again and again..)
+
+ClosedHashSet- since file data1 contains 99,999 strings with the same hash, the number of attempts in search
+of an available index is rising and rising, and the running time of an 'add' operation too. in addition, a
+rehash is needed to be done frequently- an operation which takes much time (copying thousands of strings
+again and again..)
+
+● Summarize the strengths and weaknesses of each of the data structures as reflected by
+the results. Which would you use for which purposes?
+OpenHashSet - adding a lot of values with the same hash takes long time. really fast searching for a value
+when the hash distribution is pretty good- but bad when it isn't.
+ClosedHashSet- really bad running time when adding many values with the same hash.
+treeSet- average on all parameters (add, search)- not the best, but not that bad. I would choose it when
+both of the operations are relevant.
+LinkedList- adding the strings the fastest, but slowest when searching.
+HashSet- best average results, and a stable pick.
+
+
+● How did your two implementations compare between themselves?
+we can see that when the hashing distribution of the string is pretty wide, their performance are pretty
+good. when that's not the case- OpenHashSet has much better performances.
+
+● How did your implementations compare to Java’s built in HashSet?
+    the hashSet is the best option in both adding and searching data. except in the
+    searching strings when the distribution of hash values is wide.
+
+● What results surprised you and which did you expect?
+    i expected that Java's implementation would be better than mine, but that's surprisingly not the situation
+     in all cases.
+    I was surprised that LinkedList's search time is so bad, and that it's adding time is really good.
+
+
+● Did you find java’s HashSet performance on data1.txt surprising? Can you explain it? Can
+Google? (no penalty if you don't Google it and leave this empty) actually no, i expected it would be faster
+ than treeset and linked list because of the mechanism it uses. from looking it up, i think the reason is
+ that the hashset finds unique way to store strings, even when it should have the same value as another, and
+ its due to exploiting the fact that hashMap allows duplicate hash values
+
